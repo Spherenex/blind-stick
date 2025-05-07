@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Navigation for Visually Impaired</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #1f2937;
+            text-align: center;
+        }
+        
+        .mic-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .mic-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .mic-circle.active {
+            background-color: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .mic-inner {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+        }
+        
+        .status {
+            padding: 16px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            min-height: 80px;
+        }
+        
+        .status p {
+            color: #1f2937;
+            font-weight: 500;
+        }
+        
+        .destination {
+            margin-top: 8px;
+            color: #2563eb;
+        }
+        
+        .nav-steps {
+            margin-bottom: 24px;
+        }
+        
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .steps-container {
+            background-color: #eff6ff;
+            padding: 16px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .step {
+            padding: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid #d1d5db;
+        }
+        
+        .step.active {
+            border-left-color: #2563eb;
+            background-color: #dbeafe;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background-color 0.2s;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+        
+        .helper-text {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .voice-commands {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #eff6ff;
+            border-radius: 8px;
+        }
+        
+        .commands-title {
+            font-weight: 500;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        
+        .map-container {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        .debug-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .auto-start-banner {
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .voice-alert {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: 500;
+            animation: fadeIn 1s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+            <h1>Voice Navigation</h1>
+        </header>
+        
+        <div id="autoStartBanner" class="auto-start-banner hidden">
+            Voice navigation started automatically
+        </div>
+        
+        <div class="mic-container">
+            <div id="micButton" class="mic-circle">
+                <div class="mic-inner"></div>
+            </div>
+            <p id="micStatus">Tap to speak</p>
+        </div>
+        
+        <div class="status">
+            <p id="statusMessage">Click anywhere to start voice navigation</p>
+            <p id="destination" class="destination"></p>
+        </div>
+        
+        <div id="navigationSteps" class="nav-steps hidden">
+            <h2 class="nav-title">Navigation Steps</h2>
+            <div id="stepsContainer" class="steps-container"></div>
+        </div>
+        
+        <div class="map-container hidden" id="mapContainer">
+            <div id="map"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="startButton" class="btn">Start Voice Navigation</button>
+            
+            <p class="helper-text" id="helperText">
+                Click the button above to begin voice navigation
+            </p>
+            
+            <div id="voiceCommands" class="voice-commands hidden">
+                <h3 class="commands-title">Voice Commands:</h3>
+                <ul>
+                    <li>"Navigate to [location]"</li>
+                    <li>"Take me to [location]"</li>
+                    <li>"Stop" or "Cancel" to end navigation</li>
+                    <li>"Repeat" to repeat the current instruction</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="debugInfo" class="debug-info hidden">
+            <p>Debug Information:</p>
+            <div id="debugOutput"></div>
+        </div>
+    </div>
+
+    <script src="voice.js"></script>
+</body>
+</html>
