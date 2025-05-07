@@ -20,6 +20,7 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            overflow-x: hidden;
         }
         
         .container {
@@ -30,6 +31,8 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 24px;
             margin: 0 auto;
+            position: relative;
+            z-index: 10;
         }
         
         header {
@@ -37,7 +40,6 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 24px;
-            position: relative;
         }
         
         .icon {
@@ -70,6 +72,7 @@
             justify-content: center;
             cursor: pointer;
             margin-bottom: 10px;
+            transition: background-color 0.3s;
         }
         
         .mic-circle.active {
@@ -133,17 +136,39 @@
             border-radius: 8px;
             max-height: 300px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #d1d5db #eff6ff; /* Firefox */
+        }
+        
+        .steps-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .steps-container::-webkit-scrollbar-track {
+            background: #eff6ff;
+        }
+        
+        .steps-container::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
         }
         
         .step {
             padding: 8px;
             margin-bottom: 8px;
             border-left: 4px solid #d1d5db;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
         
         .step.active {
             border-left-color: #2563eb;
             background-color: #dbeafe;
+        }
+        
+        .step:hover {
+            background-color: #f1f5f9;
         }
         
         .controls {
@@ -212,7 +237,7 @@
         .hidden {
             display: none;
         }
-
+        
         .debug-info {
             margin-top: 20px;
             padding: 10px;
@@ -221,6 +246,8 @@
             border-radius: 8px;
             font-size: 12px;
             color: #64748b;
+            max-height: 200px;
+            overflow-y: auto;
         }
         
         .auto-start-banner {
@@ -248,10 +275,71 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        
+        /* Full-Screen Button for Initial Tap */
+        .full-screen-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            z-index: 5; /* Below container but above background */
+            cursor: pointer;
+        }
+        
+        .full-screen-button.hidden {
+            display: none;
+        }
+        
+        .full-screen-button:focus {
+            outline: 3px solid #2563eb;
+            outline-offset: -3px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .mic-circle {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .mic-inner {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .btn {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+            
+            .map-container {
+                height: 250px;
+            }
+        }
     </style>
 </head>
 <body>
+    <button id="fullScreenButton" class="full-screen-button" aria-label="Tap anywhere to start voice navigation">
+        <span class="hidden">Start Voice Navigation</span>
+    </button>
     <div class="container">
+        <div class="voice-alert">
+            Tap anywhere or press Enter to enable voice navigation features
+        </div>
+        <div id="autoStartBanner" class="auto-start-banner hidden">
+            Voice navigation started automatically
+        </div>
         <header>
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -260,23 +348,19 @@
             <h1>Voice Navigation</h1>
         </header>
         
-        <div id="autoStartBanner" class="auto-start-banner hidden">
-            Voice navigation started automatically
-        </div>
-        
         <div class="mic-container">
-            <div id="micButton" class="mic-circle">
+            <div id="micButton" class="mic-circle" role="button" aria-label="Toggle voice input" tabindex="0">
                 <div class="mic-inner"></div>
             </div>
             <p id="micStatus">Tap to speak</p>
         </div>
         
         <div class="status">
-            <p id="statusMessage">Click anywhere to start voice navigation</p>
+            <p id="statusMessage">Tap anywhere to start voice navigation</p>
             <p id="destination" class="destination"></p>
         </div>
         
-        <div id="navigationSteps" class="nav-steps hidden">
+        <div id="navigationSteps" class="nav-steps hidden" role="region" aria-label="Navigation instructions">
             <h2 class="nav-title">Navigation Steps</h2>
             <div id="stepsContainer" class="steps-container"></div>
         </div>
@@ -287,11 +371,9 @@
         
         <div class="controls">
             <button id="startButton" class="btn">Start Voice Navigation</button>
-            
             <p class="helper-text" id="helperText">
-                Click the button above to begin voice navigation
+                Tap the button above or anywhere to begin voice navigation
             </p>
-            
             <div id="voiceCommands" class="voice-commands hidden">
                 <h3 class="commands-title">Voice Commands:</h3>
                 <ul>
@@ -308,7 +390,6 @@
             <div id="debugOutput"></div>
         </div>
     </div>
-
     <script src="voice.js"></script>
 </body>
 </html>
